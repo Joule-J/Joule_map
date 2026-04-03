@@ -10,6 +10,7 @@ declare module 'leaflet' {
     radius?: number
     blur?: number
     gradient?: Record<number, string>
+    pane?: string
   }
 
   export interface HeatLayer extends Layer {

@@ -3,6 +3,7 @@ import { kml as kmlToGeoJSON } from '@tmcw/togeojson'
 import type { Feature, FeatureCollection, GeoJsonProperties, Geometry } from 'geojson'
 import { toPng } from 'html-to-image'
 import L from 'leaflet'
+import 'leaflet.heat'
 import 'leaflet/dist/leaflet.css'
 import './App.css'
 
@@ -35,7 +36,7 @@ const ROUTE_ACCENT_PRESETS = ['#38bdf8', '#14b8a6', '#f97316', '#e11d48', '#f8fa
 const ROUTE_LINE_WEIGHT = 4
 const ROUTE_POINT_RADIUS = 3
 const ROUTE_POINT_STROKE = 2
-const FLOW_COLORS = ['#ef4444', '#f97316', '#facc15', '#38bdf8', '#2563eb']
+const HEAT_SAMPLE_STEP = 0.0025
 
 function isFiniteNumber(value: unknown): value is number {
   return typeof value === 'number' && Number.isFinite(value)
@@ -82,27 +83,84 @@ function normalizeWeight(rawWeight: number | null): number {
   return Math.min(rawWeight / 100, 1)
 }
 
-function pushCoordinatePoint(
+function isCoordinatePair(coordinates: unknown): coordinates is [number, number] {
+  return (
+    Array.isArray(coordinates) &&
+    coordinates.length >= 2 &&
+    isFiniteNumber(coordinates[0]) &&
+    isFiniteNumber(coordinates[1])
+  )
+}
+
+function pushHeatPoint(coordinates: [number, number], weight: number, collection: L.HeatLatLngTuple[]) {
+  const [lng, lat] = coordinates
+  collection.push([lat, lng, weight])
+}
+
+function sampleSegmentPoints(
+  start: [number, number],
+  end: [number, number],
+  weight: number,
+  collection: L.HeatLatLngTuple[],
+) {
+  pushHeatPoint(start, weight, collection)
+
+  const lngDistance = end[0] - start[0]
+  const latDistance = end[1] - start[1]
+  const segmentLength = Math.hypot(lngDistance, latDistance)
+
+  if (segmentLength <= HEAT_SAMPLE_STEP) {
+    pushHeatPoint(end, weight, collection)
+    return
+  }
+
+  const steps = Math.max(1, Math.ceil(segmentLength / HEAT_SAMPLE_STEP))
+  for (let step = 1; step < steps; step += 1) {
+    const progress = step / steps
+    collection.push([
+      start[1] + latDistance * progress,
+      start[0] + lngDistance * progress,
+      weight,
+    ])
+  }
+
+  pushHeatPoint(end, weight, collection)
+}
+
+function sampleCoordinatePath(
   coordinates: unknown,
   weight: number,
   collection: L.HeatLatLngTuple[],
 ) {
-  if (!Array.isArray(coordinates)) {
+  if (!Array.isArray(coordinates) || coordinates.length === 0) {
     return
   }
 
-  const [lng, lat] = coordinates
-  if (isFiniteNumber(lng) && isFiniteNumber(lat)) {
-    collection.push([lat, lng, weight])
+  if (isCoordinatePair(coordinates)) {
+    pushHeatPoint(coordinates, weight, collection)
+    return
+  }
+
+  if (coordinates.every(isCoordinatePair)) {
+    const path = coordinates as [number, number][]
+
+    if (path.length === 1) {
+      pushHeatPoint(path[0], weight, collection)
+      return
+    }
+
+    for (let index = 0; index < path.length - 1; index += 1) {
+      sampleSegmentPoints(path[index], path[index + 1], weight, collection)
+    }
     return
   }
 
   for (const child of coordinates) {
-    pushCoordinatePoint(child, weight, collection)
+    sampleCoordinatePath(child, weight, collection)
   }
 }
 
-function extractGeometryPoints(
+function extractGeometryHeatPoints(
   geometry: Geometry | null,
   weight: number,
   collection: L.HeatLatLngTuple[],
@@ -113,12 +171,12 @@ function extractGeometryPoints(
 
   if (geometry.type === 'GeometryCollection') {
     for (const child of geometry.geometries) {
-      extractGeometryPoints(child, weight, collection)
+      extractGeometryHeatPoints(child, weight, collection)
     }
     return
   }
 
-  pushCoordinatePoint(geometry.coordinates, weight, collection)
+  sampleCoordinatePath(geometry.coordinates, weight, collection)
 }
 
 function featureToHeatPoints(feature: Feature<Geometry | null, GeoJsonProperties>): {
@@ -133,7 +191,7 @@ function featureToHeatPoints(feature: Feature<Geometry | null, GeoJsonProperties
   const normalizedWeight = normalizeWeight(rawWeight)
   const points: L.HeatLatLngTuple[] = []
 
-  extractGeometryPoints(feature.geometry, normalizedWeight, points)
+  extractGeometryHeatPoints(feature.geometry, normalizedWeight, points)
 
   return {
     points,
@@ -215,30 +273,6 @@ function buildPopupContent(properties: GeoJsonProperties | null): string {
   return parts.join('<br />') || 'Unnamed route item'
 }
 
-function getFeatureIntensity(feature: Feature<Geometry | null, GeoJsonProperties>): number {
-  return normalizeWeight(parseNumericWeight(feature.properties ?? null))
-}
-
-function getFlowColor(intensity: number): string {
-  if (intensity < 0.28) {
-    return FLOW_COLORS[0]
-  }
-
-  if (intensity < 0.48) {
-    return FLOW_COLORS[1]
-  }
-
-  if (intensity < 0.68) {
-    return FLOW_COLORS[2]
-  }
-
-  if (intensity < 0.84) {
-    return FLOW_COLORS[3]
-  }
-
-  return FLOW_COLORS[4]
-}
-
 function combineDatasets(datasets: ParsedDataset[]): CombinedDataset {
   const features = datasets.flatMap((dataset) => dataset.geojson.features)
   const heatPoints = datasets.flatMap((dataset) => dataset.heatPoints)
@@ -286,7 +320,7 @@ function App() {
   const dragStartYRef = useRef<number | null>(null)
   const mapRef = useRef<L.Map | null>(null)
   const baseTileLayerRef = useRef<L.TileLayer | null>(null)
-  const flowLayerRef = useRef<L.GeoJSON | null>(null)
+  const heatLayerRef = useRef<L.HeatLayer | null>(null)
   const geoJsonLayerRef = useRef<L.GeoJSON | null>(null)
   const [dataset, setDataset] = useState<CombinedDataset | null>(null)
   const [error, setError] = useState<string>('')
@@ -337,8 +371,7 @@ function App() {
     const flowPane = map.getPane('flow-heat')
     if (flowPane) {
       flowPane.style.zIndex = '360'
-      flowPane.style.filter = 'blur(10px)'
-      flowPane.style.opacity = '0.96'
+      flowPane.style.opacity = '0.94'
     }
 
     map.createPane('routes')
@@ -392,7 +425,7 @@ function App() {
       return
     }
 
-    flowLayerRef.current?.remove()
+    heatLayerRef.current?.remove()
     geoJsonLayerRef.current?.remove()
 
     if (!dataset) {
@@ -400,35 +433,19 @@ function App() {
       return
     }
 
-    flowLayerRef.current = L.geoJSON(dataset.geojson, {
+    heatLayerRef.current = L.heatLayer(dataset.heatPoints, {
       pane: 'flow-heat',
-      style: (feature) => {
-        const intensity = feature ? getFeatureIntensity(feature) : 0.55
-        const flowColor = getFlowColor(intensity)
-        const isLine = Boolean(feature?.geometry?.type?.includes('Line'))
-        const isPolygon = Boolean(feature?.geometry?.type?.includes('Polygon'))
-
-        return {
-          color: flowColor,
-          weight: isLine ? 18 + Math.round(intensity * 10) : 0,
-          opacity: isLine ? 0.26 + intensity * 0.18 : 0,
-          fillColor: flowColor,
-          fillOpacity: isPolygon ? 0.1 + intensity * 0.16 : 0,
-          lineCap: 'round',
-          lineJoin: 'round',
-        }
-      },
-      pointToLayer: (feature, latlng) => {
-        const intensity = feature ? getFeatureIntensity(feature) : 0.55
-
-        return L.circleMarker(latlng, {
-          pane: 'flow-heat',
-          radius: 10 + Math.round(intensity * 8),
-          stroke: false,
-          fillColor: getFlowColor(intensity),
-          fillOpacity: 0.2 + intensity * 0.22,
-          className: 'flow-point',
-        })
+      radius: 34,
+      blur: 26,
+      minOpacity: 0.36,
+      maxZoom: 17,
+      gradient: {
+        0.1: '#2563eb',
+        0.32: '#22d3ee',
+        0.52: '#84cc16',
+        0.72: '#fde047',
+        0.88: '#fb923c',
+        1: '#ef4444',
       },
     }).addTo(map)
 
