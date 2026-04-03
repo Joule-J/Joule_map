@@ -326,6 +326,7 @@ function App() {
   const exportFrameRef = useRef<HTMLDivElement | null>(null)
   const fileInputRef = useRef<HTMLInputElement | null>(null)
   const dragStartYRef = useRef<number | null>(null)
+  const routeAccentRef = useRef(THEME_ROUTE_ACCENTS.dark)
   const mapRef = useRef<L.Map | null>(null)
   const baseTileLayerRef = useRef<L.TileLayer | null>(null)
   const heatLayerRef = useRef<L.HeatLayer | null>(null)
@@ -342,6 +343,7 @@ function App() {
   const [isPanelOpen, setIsPanelOpen] = useState(true)
   const [sheetOffsetY, setSheetOffsetY] = useState(0)
   const [isDraggingSheet, setIsDraggingSheet] = useState(false)
+  const [showHeatMap, setShowHeatMap] = useState(true)
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
@@ -433,6 +435,10 @@ function App() {
   }, [baseMapTheme, hasCustomRouteAccent])
 
   useEffect(() => {
+    routeAccentRef.current = routeAccent
+  }, [routeAccent])
+
+  useEffect(() => {
     if (!isPanelOpen) {
       setSheetOffsetY(0)
       setIsDraggingSheet(false)
@@ -468,16 +474,20 @@ function App() {
         0.88: '#fb923c',
         1: '#ef4444',
       },
-    }).addTo(map)
+    })
+
+    if (showHeatMap) {
+      heatLayerRef.current.addTo(map)
+    }
 
     geoJsonLayerRef.current = L.geoJSON(dataset.geojson, {
       pane: 'routes',
       style: (feature) => {
         return {
-          color: routeAccent,
+          color: routeAccentRef.current,
           weight: feature?.geometry?.type?.includes('Line') ? ROUTE_LINE_WEIGHT : 2,
           opacity: 0.95,
-          fillColor: routeAccent,
+          fillColor: routeAccentRef.current,
           fillOpacity: feature?.geometry?.type?.includes('Polygon') ? 0.12 : 0.22,
         }
       },
@@ -487,7 +497,7 @@ function App() {
           radius: ROUTE_POINT_RADIUS,
           color: '#ffffff',
           weight: ROUTE_POINT_STROKE,
-          fillColor: routeAccent,
+          fillColor: routeAccentRef.current,
           fillOpacity: 1,
         })
       },
@@ -502,7 +512,52 @@ function App() {
     if (bounds.isValid()) {
       map.fitBounds(bounds.pad(0.14))
     }
-  }, [dataset, routeAccent])
+  }, [dataset, showHeatMap])
+
+  useEffect(() => {
+    const map = mapRef.current
+    const heatLayer = heatLayerRef.current
+
+    if (!map || !heatLayer) {
+      return
+    }
+
+    if (showHeatMap) {
+      if (!map.hasLayer(heatLayer)) {
+        heatLayer.addTo(map)
+      }
+      return
+    }
+
+    if (map.hasLayer(heatLayer)) {
+      heatLayer.remove()
+    }
+  }, [showHeatMap])
+
+  useEffect(() => {
+    if (!geoJsonLayerRef.current) {
+      return
+    }
+
+    geoJsonLayerRef.current.setStyle((feature) => ({
+      color: routeAccent,
+      weight: feature?.geometry?.type?.includes('Line') ? ROUTE_LINE_WEIGHT : 2,
+      opacity: 0.95,
+      fillColor: routeAccent,
+      fillOpacity: feature?.geometry?.type?.includes('Polygon') ? 0.12 : 0.22,
+    }))
+
+    geoJsonLayerRef.current.eachLayer((layer) => {
+      if (layer instanceof L.CircleMarker) {
+        layer.setStyle({
+          color: '#ffffff',
+          weight: ROUTE_POINT_STROKE,
+          fillColor: routeAccent,
+          fillOpacity: 1,
+        })
+      }
+    })
+  }, [routeAccent])
 
   async function handleFileChange(event: React.ChangeEvent<HTMLInputElement>) {
     const files = Array.from(event.target.files ?? [])
@@ -722,32 +777,44 @@ function App() {
             </div>
           </div>
 
-          <div className="panel-card">
-            <span className="panel-title">Route Color</span>
-            <div className="theme-switcher-buttons compact">
-              {ROUTE_ACCENT_PRESETS.map((color) => (
-                <button
-                  key={color}
-                  type="button"
-                  className={routeAccent === color ? 'swatch-button active' : 'swatch-button'}
-                  style={{ backgroundColor: color }}
-                  onClick={() => {
-                    setHasCustomRouteAccent(true)
-                    setRouteAccent(color)
-                  }}
-                  aria-label={`Set route color ${color}`}
-                />
-              ))}
-              <label className="color-input-shell" aria-label="Custom route color">
-                <input
-                  type="color"
-                  value={routeAccent}
-                  onChange={(event) => {
-                    setHasCustomRouteAccent(true)
-                    setRouteAccent(event.target.value)
-                  }}
-                />
-              </label>
+          <div className="panel-card panel-card-split">
+            <div className="panel-card-main">
+              <span className="panel-title">Route Color</span>
+              <div className="theme-switcher-buttons compact">
+                {ROUTE_ACCENT_PRESETS.map((color) => (
+                  <button
+                    key={color}
+                    type="button"
+                    className={routeAccent === color ? 'swatch-button active' : 'swatch-button'}
+                    style={{ backgroundColor: color }}
+                    onClick={() => {
+                      setHasCustomRouteAccent(true)
+                      setRouteAccent(color)
+                    }}
+                    aria-label={`Set route color ${color}`}
+                  />
+                ))}
+                <label className="color-input-shell" aria-label="Custom route color">
+                  <input
+                    type="color"
+                    value={routeAccent}
+                    onChange={(event) => {
+                      setHasCustomRouteAccent(true)
+                      setRouteAccent(event.target.value)
+                    }}
+                  />
+                </label>
+              </div>
+            </div>
+            <div className="panel-card-side">
+              <span className="panel-title">Heat Map</span>
+              <button
+                type="button"
+                className={showHeatMap ? 'theme-button active' : 'theme-button'}
+                onClick={() => setShowHeatMap((current) => !current)}
+              >
+                {showHeatMap ? 'On' : 'Off'}
+              </button>
             </div>
           </div>
 
@@ -776,23 +843,25 @@ function App() {
             <span className="upload-subtitle">Mobile picker supports KML and XML files</span>
           </div>
 
-          <button
-            type="button"
-            className="download-button compact"
-            onClick={() => dataset && downloadGeoJSON(dataset)}
-            disabled={!dataset}
-          >
-            GeoJSON
-          </button>
+          <div className="download-grid">
+            <button
+              type="button"
+              className="download-button compact"
+              onClick={() => dataset && downloadGeoJSON(dataset)}
+              disabled={!dataset}
+            >
+              GeoJSON
+            </button>
 
-          <button
-            type="button"
-            className="download-button secondary-button compact"
-            onClick={handlePngExport}
-            disabled={!dataset || isExportingPng}
-          >
-            {isExportingPng ? 'PNG...' : 'PNG'}
-          </button>
+            <button
+              type="button"
+              className="download-button secondary-button compact"
+              onClick={handlePngExport}
+              disabled={!dataset || isExportingPng}
+            >
+              {isExportingPng ? 'PNG...' : 'PNG'}
+            </button>
+          </div>
 
           <div className="panel-card stats-grid">
             <div>
