@@ -282,6 +282,7 @@ function downloadGeoJSON(dataset: CombinedDataset) {
 function App() {
   const mapElementRef = useRef<HTMLDivElement | null>(null)
   const exportFrameRef = useRef<HTMLDivElement | null>(null)
+  const fileInputRef = useRef<HTMLInputElement | null>(null)
   const dragStartYRef = useRef<number | null>(null)
   const mapRef = useRef<L.Map | null>(null)
   const baseTileLayerRef = useRef<L.TileLayer | null>(null)
@@ -571,6 +572,10 @@ function App() {
     setSheetOffsetY(0)
   }
 
+  function handleFilePickerOpen() {
+    fileInputRef.current?.click()
+  }
+
   return (
     <main className="app-shell">
       {showIntro ? (
@@ -695,8 +700,20 @@ function App() {
             </div>
           </div>
 
-          <label className="upload-card compact">
+          <div
+            className="upload-card compact"
+            role="button"
+            tabIndex={0}
+            onClick={handleFilePickerOpen}
+            onKeyDown={(event) => {
+              if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault()
+                handleFilePickerOpen()
+              }
+            }}
+          >
             <input
+              ref={fileInputRef}
               type="file"
               accept=".kml,application/vnd.google-earth.kml+xml"
               multiple
@@ -705,7 +722,7 @@ function App() {
             <span className="upload-title">
               {isBusy ? 'Processing...' : 'Upload KML'}
             </span>
-          </label>
+          </div>
 
           <button
             type="button"

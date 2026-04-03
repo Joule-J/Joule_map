@@ -439,10 +439,14 @@
   gap: 6px;
   cursor: pointer;
   width: 100%;
+  position: relative;
 }
 
 .upload-card input {
-  display: none;
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  pointer-events: none;
 }
 
 .upload-title {
