@@ -365,6 +365,9 @@ function App() {
       zoom: DEFAULT_ZOOM,
       zoomControl: false,
       attributionControl: true,
+      zoomAnimation: false,
+      fadeAnimation: false,
+      markerZoomAnimation: false,
     })
 
     map.attributionControl.setPrefix('')
@@ -605,6 +608,13 @@ function App() {
     setIsExportingPng(true)
 
     try {
+      exportFrameRef.current.classList.add('exporting')
+      mapRef.current?.invalidateSize({ pan: false })
+      heatLayerRef.current?.redraw()
+
+      await new Promise((resolve) => window.requestAnimationFrame(() => resolve(undefined)))
+      await new Promise((resolve) => window.requestAnimationFrame(() => resolve(undefined)))
+
       const dataUrl = await toPng(exportFrameRef.current, {
         cacheBust: true,
         pixelRatio: Math.max(window.devicePixelRatio, 2),
@@ -623,6 +633,7 @@ function App() {
     } catch {
       setError('PNG export failed. Try again after the map finishes rendering.')
     } finally {
+      exportFrameRef.current?.classList.remove('exporting')
       setIsExportingPng(false)
     }
   }

@@ -252,6 +252,26 @@
   position: relative;
 }
 
+.export-frame.exporting .leaflet-control-container,
+.export-frame.exporting .panel-toggle-open {
+  display: none !important;
+}
+
+.export-frame.exporting .leaflet-flow-heat-pane {
+  opacity: 1 !important;
+  filter: saturate(1.18) contrast(1.08);
+}
+
+.export-frame.exporting .leaflet-routes-pane path {
+  stroke-width: 6px !important;
+  stroke-opacity: 1 !important;
+  fill-opacity: 0.28 !important;
+}
+
+.export-frame.exporting .leaflet-routes-pane .leaflet-interactive[fill] {
+  stroke-width: 3px !important;
+}
+
 .map-canvas {
   position: relative;
   height: 100%;
