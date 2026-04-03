@@ -451,6 +451,19 @@ function App() {
       return
     }
 
+    const syncSize = () => map.invalidateSize({ pan: false })
+    syncSize()
+
+    const timer = window.setTimeout(syncSize, 260)
+    return () => window.clearTimeout(timer)
+  }, [isPanelOpen])
+
+  useEffect(() => {
+    const map = mapRef.current
+    if (!map) {
+      return
+    }
+
     heatLayerRef.current?.remove()
     geoJsonLayerRef.current?.remove()
 
