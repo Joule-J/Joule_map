@@ -449,8 +449,8 @@ function App() {
 
     heatLayerRef.current = L.heatLayer(dataset.heatPoints, {
       pane: 'flow-heat',
-      radius: 34,
-      blur: 26,
+      radius: 24,
+      blur: 18,
       minOpacity: 0.36,
       maxZoom: 17,
       gradient: {
