@@ -36,7 +36,7 @@ const ROUTE_ACCENT_PRESETS = ['#38bdf8', '#14b8a6', '#f97316', '#e11d48', '#f8fa
 const ROUTE_LINE_WEIGHT = 4
 const ROUTE_POINT_RADIUS = 3
 const ROUTE_POINT_STROKE = 2
-const HEAT_SAMPLE_STEP = 0.0025
+const HEAT_SAMPLE_STEP = 0.0012
 const BASEMAP_TILE_URLS: Record<BaseMapTheme, string> = {
   light: 'https://a.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png',
   dark: 'https://a.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png',
@@ -477,8 +477,8 @@ function App() {
 
     heatLayerRef.current = L.heatLayer(dataset.heatPoints, {
       pane: 'flow-heat',
-      radius: 24,
-      blur: 18,
+      radius: 28,
+      blur: 20,
       minOpacity: 0.36,
       maxZoom: 17,
       gradient: {
