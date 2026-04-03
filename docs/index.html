@@ -2,13 +2,21 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/Joule_map/favicon.svg" />
+    <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>kml_heat_map</title>
-    <script type="module" crossorigin src="/Joule_map/assets/index-CUWwFqUg.js"></script>
-    <link rel="stylesheet" crossorigin href="/Joule_map/assets/index-BxZ2-PRR.css">
+    <script type="module" crossorigin src="./assets/index-CUWwFqUg.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-BxZ2-PRR.css">
   </head>
   <body>
     <div id="root"></div>
+    <script>
+      if (
+        window.location.hostname === 'joule-j.github.io' &&
+        (window.location.pathname === '/Joule_map/' || window.location.pathname === '/Joule_map')
+      ) {
+        window.location.replace('/Joule_map/docs/')
+      }
+    </script>
   </body>
 </html>
