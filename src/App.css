@@ -618,14 +618,22 @@
     pointer-events: none;
   }
 
-  .side-panel::before {
-    content: '';
+  .side-panel.dragging {
+    transition: none;
+  }
+
+  .panel-drag-handle {
+    display: grid;
+    place-items: center;
+    padding: 0 0 10px;
+    touch-action: none;
+  }
+
+  .panel-drag-handle span {
     width: 56px;
     height: 5px;
     border-radius: 999px;
     background: rgba(255, 255, 255, 0.2);
-    margin: 0 auto 12px;
-    flex-shrink: 0;
   }
 
   .panel-close-button {

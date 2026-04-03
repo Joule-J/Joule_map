@@ -282,6 +282,7 @@ function downloadGeoJSON(dataset: CombinedDataset) {
 function App() {
   const mapElementRef = useRef<HTMLDivElement | null>(null)
   const exportFrameRef = useRef<HTMLDivElement | null>(null)
+  const dragStartYRef = useRef<number | null>(null)
   const mapRef = useRef<L.Map | null>(null)
   const baseTileLayerRef = useRef<L.TileLayer | null>(null)
   const flowLayerRef = useRef<L.GeoJSON | null>(null)
@@ -295,6 +296,8 @@ function App() {
   const [showIntro, setShowIntro] = useState(true)
   const [isAuthorized, setIsAuthorized] = useState(false)
   const [isPanelOpen, setIsPanelOpen] = useState(true)
+  const [sheetOffsetY, setSheetOffsetY] = useState(0)
+  const [isDraggingSheet, setIsDraggingSheet] = useState(false)
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
@@ -366,6 +369,14 @@ function App() {
 
     mapElementRef.current.dataset.theme = baseMapTheme
   }, [baseMapTheme])
+
+  useEffect(() => {
+    if (!isPanelOpen) {
+      setSheetOffsetY(0)
+      setIsDraggingSheet(false)
+      dragStartYRef.current = null
+    }
+  }, [isPanelOpen])
 
   useEffect(() => {
     const map = mapRef.current
@@ -507,6 +518,45 @@ function App() {
     }
   }
 
+  function handleSheetTouchStart(event: React.TouchEvent<HTMLDivElement>) {
+    if (window.innerWidth > 900) {
+      return
+    }
+
+    dragStartYRef.current = event.touches[0]?.clientY ?? null
+    setIsDraggingSheet(true)
+  }
+
+  function handleSheetTouchMove(event: React.TouchEvent<HTMLDivElement>) {
+    if (!isDraggingSheet || dragStartYRef.current === null) {
+      return
+    }
+
+    const currentY = event.touches[0]?.clientY ?? dragStartYRef.current
+    const nextOffset = Math.max(0, currentY - dragStartYRef.current)
+
+    setSheetOffsetY(nextOffset)
+  }
+
+  function handleSheetTouchEnd() {
+    if (!isDraggingSheet) {
+      return
+    }
+
+    const shouldClose = sheetOffsetY > 120
+
+    setIsDraggingSheet(false)
+    dragStartYRef.current = null
+
+    if (shouldClose) {
+      setIsPanelOpen(false)
+      setSheetOffsetY(0)
+      return
+    }
+
+    setSheetOffsetY(0)
+  }
+
   return (
     <main className="app-shell">
       {showIntro ? (
@@ -567,7 +617,19 @@ function App() {
           onClick={() => setIsPanelOpen(false)}
         />
 
-        <aside className={isPanelOpen ? 'side-panel' : 'side-panel hidden'} aria-hidden={!isPanelOpen}>
+        <aside
+          className={`${isPanelOpen ? 'side-panel' : 'side-panel hidden'}${isDraggingSheet ? ' dragging' : ''}`}
+          aria-hidden={!isPanelOpen}
+          style={isPanelOpen ? { transform: `translateY(${sheetOffsetY}px)` } : undefined}
+        >
+          <div
+            className="panel-drag-handle"
+            onTouchStart={handleSheetTouchStart}
+            onTouchMove={handleSheetTouchMove}
+            onTouchEnd={handleSheetTouchEnd}
+          >
+            <span />
+          </div>
           <button
             type="button"
             className="panel-close-button"
