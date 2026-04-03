@@ -295,8 +295,8 @@
 }
 
 .map-canvas .basemap-tiles {
-  filter: grayscale(1) contrast(0.45) brightness(0.9) saturate(0);
-  opacity: 0.08;
+  filter: grayscale(0.92) contrast(1.02) brightness(0.98) saturate(0);
+  opacity: 0.82;
 }
 
 .map-canvas[data-theme='light'] {
@@ -306,16 +306,16 @@
 
 .map-canvas[data-theme='light']::after {
   background:
-    linear-gradient(rgba(0, 0, 0, 0.015), rgba(0, 0, 0, 0.02)),
-    linear-gradient(90deg, rgba(0, 0, 0, 0.028) 1px, transparent 1px),
-    linear-gradient(rgba(0, 0, 0, 0.028) 1px, transparent 1px);
+    linear-gradient(rgba(0, 0, 0, 0.005), rgba(0, 0, 0, 0.01)),
+    linear-gradient(90deg, rgba(0, 0, 0, 0.018) 1px, transparent 1px),
+    linear-gradient(rgba(0, 0, 0, 0.018) 1px, transparent 1px);
   mix-blend-mode: multiply;
-  opacity: 0.22;
+  opacity: 0.1;
 }
 
 .map-canvas[data-theme='light'] .basemap-tiles {
-  filter: grayscale(1) contrast(1.18) brightness(1.26) saturate(0);
-  opacity: 0.26;
+  filter: grayscale(1) contrast(1.06) brightness(1.08) saturate(0);
+  opacity: 0.88;
 }
 
 .map-canvas[data-theme='dark'] {
@@ -326,16 +326,16 @@
 
 .map-canvas[data-theme='dark']::after {
   background:
-    linear-gradient(rgba(255, 255, 255, 0.01), rgba(255, 255, 255, 0.005)),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.018) 1px, transparent 1px),
-    linear-gradient(rgba(255, 255, 255, 0.018) 1px, transparent 1px);
+    linear-gradient(rgba(255, 255, 255, 0.006), rgba(255, 255, 255, 0.003)),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.012) 1px, transparent 1px),
+    linear-gradient(rgba(255, 255, 255, 0.012) 1px, transparent 1px);
   mix-blend-mode: screen;
-  opacity: 0.14;
+  opacity: 0.08;
 }
 
 .map-canvas[data-theme='dark'] .basemap-tiles {
-  filter: grayscale(1) invert(1) brightness(0.22) contrast(2.2) saturate(0);
-  opacity: 0.36;
+  filter: grayscale(1) invert(1) brightness(0.68) contrast(1.5) saturate(0);
+  opacity: 0.9;
 }
 
 .side-panel {
