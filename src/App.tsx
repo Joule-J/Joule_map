@@ -548,19 +548,24 @@ function App() {
         }
       >
         <section className="map-panel">
-          {!isPanelOpen ? (
-            <button
-              type="button"
-              className="panel-toggle-open"
-              onClick={() => setIsPanelOpen(true)}
-            >
-              Settings
-            </button>
-          ) : null}
+          <button
+            type="button"
+            className="panel-toggle-open"
+            onClick={() => setIsPanelOpen(true)}
+          >
+            Settings
+          </button>
           <div ref={exportFrameRef} className="map-frame export-frame">
             <div ref={mapElementRef} className="map-canvas" />
           </div>
         </section>
+
+        <button
+          type="button"
+          className={isPanelOpen ? 'mobile-panel-backdrop active' : 'mobile-panel-backdrop'}
+          aria-label="Close settings panel"
+          onClick={() => setIsPanelOpen(false)}
+        />
 
         <aside className={isPanelOpen ? 'side-panel' : 'side-panel hidden'} aria-hidden={!isPanelOpen}>
           <button
