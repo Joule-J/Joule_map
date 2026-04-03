@@ -26,7 +26,7 @@ type CombinedDataset = {
   weightMode: 'property' | 'density'
 }
 
-type BaseMapTheme = 'white' | 'navy' | 'blue'
+type BaseMapTheme = 'light' | 'dark'
 
 const DEFAULT_CENTER: L.LatLngExpression = [20, 0]
 const DEFAULT_ZOOM = 2
@@ -291,7 +291,7 @@ function App() {
   const [error, setError] = useState<string>('')
   const [isBusy, setIsBusy] = useState(false)
   const [isExportingPng, setIsExportingPng] = useState(false)
-  const [baseMapTheme, setBaseMapTheme] = useState<BaseMapTheme>('white')
+  const [baseMapTheme, setBaseMapTheme] = useState<BaseMapTheme>('dark')
   const [routeAccent, setRouteAccent] = useState('#38bdf8')
   const [showIntro, setShowIntro] = useState(true)
   const [isAuthorized, setIsAuthorized] = useState(false)
@@ -523,6 +523,10 @@ function App() {
       return
     }
 
+    if (event.cancelable) {
+      event.preventDefault()
+    }
+
     dragStartYRef.current = event.touches[0]?.clientY ?? null
     setIsDraggingSheet(true)
   }
@@ -530,6 +534,10 @@ function App() {
   function handleSheetTouchMove(event: React.TouchEvent<HTMLDivElement>) {
     if (!isDraggingSheet || dragStartYRef.current === null) {
       return
+    }
+
+    if (event.cancelable) {
+      event.preventDefault()
     }
 
     const currentY = event.touches[0]?.clientY ?? dragStartYRef.current
@@ -554,6 +562,12 @@ function App() {
       return
     }
 
+    setSheetOffsetY(0)
+  }
+
+  function handleSheetTouchCancel() {
+    setIsDraggingSheet(false)
+    dragStartYRef.current = null
     setSheetOffsetY(0)
   }
 
@@ -627,6 +641,7 @@ function App() {
             onTouchStart={handleSheetTouchStart}
             onTouchMove={handleSheetTouchMove}
             onTouchEnd={handleSheetTouchEnd}
+            onTouchCancel={handleSheetTouchCancel}
           >
             <span />
           </div>
@@ -642,24 +657,17 @@ function App() {
             <div className="theme-switcher-buttons compact">
               <button
                 type="button"
-                className={baseMapTheme === 'white' ? 'theme-button active' : 'theme-button'}
-                onClick={() => setBaseMapTheme('white')}
+                className={baseMapTheme === 'light' ? 'theme-button active' : 'theme-button'}
+                onClick={() => setBaseMapTheme('light')}
               >
-                White
+                Light
               </button>
               <button
                 type="button"
-                className={baseMapTheme === 'navy' ? 'theme-button active' : 'theme-button'}
-                onClick={() => setBaseMapTheme('navy')}
+                className={baseMapTheme === 'dark' ? 'theme-button active' : 'theme-button'}
+                onClick={() => setBaseMapTheme('dark')}
               >
-                Navy
-              </button>
-              <button
-                type="button"
-                className={baseMapTheme === 'blue' ? 'theme-button active' : 'theme-button'}
-                onClick={() => setBaseMapTheme('blue')}
-              >
-                Blue
+                Dark
               </button>
             </div>
           </div>

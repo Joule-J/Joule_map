@@ -19,6 +19,7 @@
 html {
   scroll-behavior: smooth;
   height: 100%;
+  overscroll-behavior: none;
 }
 
 body {
@@ -27,6 +28,7 @@ body {
   min-height: 100vh;
   height: 100%;
   overflow: hidden;
+  overscroll-behavior: none;
   animation: fadeInApp 0.6s ease-out;
 }
 
@@ -95,15 +97,12 @@ a {
   height: 100svh;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
 
 @media (max-width: 720px) {
-  body {
-    overflow: auto;
-  }
-
   #root {
-    height: auto;
+    height: 100svh;
     min-height: 100svh;
   }
 }

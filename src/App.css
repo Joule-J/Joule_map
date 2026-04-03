@@ -169,8 +169,10 @@
   display: grid;
   grid-template-columns: minmax(0, 1.45fr) var(--panel-width);
   gap: var(--shell-gap);
+  height: 100%;
   min-height: 0;
   padding: var(--shell-gap);
+  overflow: hidden;
   opacity: 0.4;
   transition: opacity 220ms ease;
 }
@@ -297,35 +299,43 @@
   opacity: 0.08;
 }
 
-.map-canvas[data-theme='white'] {
+.map-canvas[data-theme='light'] {
   background:
-    linear-gradient(180deg, rgba(28, 28, 28, 0.98), rgba(10, 10, 10, 1));
+    linear-gradient(180deg, rgba(247, 247, 246, 0.98), rgba(230, 230, 228, 1));
 }
 
-.map-canvas[data-theme='white'] .basemap-tiles {
-  filter: grayscale(1) contrast(0.42) brightness(0.92) saturate(0);
-  opacity: 0.07;
-}
-
-.map-canvas[data-theme='navy'] {
+.map-canvas[data-theme='light']::after {
   background:
-    linear-gradient(180deg, rgba(20, 24, 34, 0.98), rgba(6, 10, 18, 1));
+    linear-gradient(rgba(0, 0, 0, 0.015), rgba(0, 0, 0, 0.02)),
+    linear-gradient(90deg, rgba(0, 0, 0, 0.028) 1px, transparent 1px),
+    linear-gradient(rgba(0, 0, 0, 0.028) 1px, transparent 1px);
+  mix-blend-mode: multiply;
+  opacity: 0.22;
 }
 
-.map-canvas[data-theme='navy'] .basemap-tiles {
-  filter: grayscale(1) invert(1) hue-rotate(178deg) saturate(0.18) brightness(0.26) contrast(0.45);
-  opacity: 0.07;
+.map-canvas[data-theme='light'] .basemap-tiles {
+  filter: grayscale(1) contrast(1.18) brightness(1.26) saturate(0);
+  opacity: 0.26;
 }
 
-.map-canvas[data-theme='blue'] {
+.map-canvas[data-theme='dark'] {
   background:
-    radial-gradient(circle at top left, rgba(59, 130, 246, 0.12), transparent 24%),
-    linear-gradient(180deg, rgba(8, 15, 28, 0.98), rgba(5, 9, 16, 1));
+    radial-gradient(circle at top left, rgba(255, 255, 255, 0.025), transparent 22%),
+    linear-gradient(180deg, rgba(12, 12, 13, 0.985), rgba(4, 4, 5, 1));
 }
 
-.map-canvas[data-theme='blue'] .basemap-tiles {
-  filter: grayscale(1) invert(1) hue-rotate(186deg) saturate(0.22) brightness(0.26) contrast(0.42);
-  opacity: 0.06;
+.map-canvas[data-theme='dark']::after {
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.01), rgba(255, 255, 255, 0.005)),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.018) 1px, transparent 1px),
+    linear-gradient(rgba(255, 255, 255, 0.018) 1px, transparent 1px);
+  mix-blend-mode: screen;
+  opacity: 0.14;
+}
+
+.map-canvas[data-theme='dark'] .basemap-tiles {
+  filter: grayscale(1) invert(1) brightness(0.22) contrast(2.2) saturate(0);
+  opacity: 0.36;
 }
 
 .side-panel {
@@ -575,13 +585,16 @@
 @media (max-width: 900px) {
   .app-shell {
     grid-template-rows: 64px minmax(0, 1fr);
-    height: auto;
+    height: 100svh;
     min-height: 100svh;
-    overflow: auto;
+    overflow: hidden;
   }
 
   .workspace {
     grid-template-columns: 1fr;
+    height: 100%;
+    min-height: 0;
+    overflow: hidden;
   }
 
   .workspace.panel-closed {
@@ -589,7 +602,8 @@
   }
 
   .map-frame {
-    min-height: 56svh;
+    min-height: 0;
+    height: 100%;
   }
 
   .side-panel {
@@ -599,8 +613,8 @@
     bottom: 0;
     top: auto;
     width: 100vw;
-    max-height: min(68svh, 760px);
-    padding: 16px 14px 18px;
+    max-height: min(72svh, 760px);
+    padding: 0 14px 18px;
     background: rgba(7, 7, 8, 0.96);
     border-top: 1px solid rgba(255, 255, 255, 0.12);
     transform: translateY(0);
@@ -625,15 +639,18 @@
   .panel-drag-handle {
     display: grid;
     place-items: center;
-    padding: 0 0 10px;
+    min-height: 54px;
+    margin: 0 -14px 6px;
+    padding: 12px 18px 10px;
     touch-action: none;
+    cursor: grab;
   }
 
   .panel-drag-handle span {
-    width: 56px;
-    height: 5px;
+    width: 72px;
+    height: 6px;
     border-radius: 999px;
-    background: rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.26);
   }
 
   .panel-close-button {
@@ -682,7 +699,7 @@
   .side-panel {
     width: 100vw;
     max-height: 74svh;
-    padding: 14px 10px 16px;
+    padding: 0 10px 16px;
   }
 
   .panel-toggle-open {
