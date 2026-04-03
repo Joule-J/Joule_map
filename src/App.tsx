@@ -38,8 +38,8 @@ const ROUTE_POINT_RADIUS = 3
 const ROUTE_POINT_STROKE = 2
 const HEAT_SAMPLE_STEP = 0.0025
 const BASEMAP_TILE_URLS: Record<BaseMapTheme, string> = {
-  light: 'https://tiles.stadiamaps.com/tiles/alidade_smooth/{z}/{x}/{y}{r}.png',
-  dark: 'https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png',
+  light: 'https://a.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png',
+  dark: 'https://a.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png',
 }
 const THEME_ROUTE_ACCENTS: Record<BaseMapTheme, string> = {
   light: '#cfcfcf',
@@ -398,9 +398,8 @@ function App() {
       BASEMAP_TILE_URLS.dark,
       {
         attribution:
-          '&copy; <a href="https://stadiamaps.com/" target="_blank" rel="noreferrer">Stadia Maps</a> ' +
-          '&copy; <a href="https://openmaptiles.org/" target="_blank" rel="noreferrer">OpenMapTiles</a> ' +
-          '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">OpenStreetMap</a>',
+          '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">OpenStreetMap</a> ' +
+          '&copy; <a href="https://carto.com/" target="_blank" rel="noreferrer">CARTO</a>',
         maxZoom: 20,
         pane: 'base-tiles',
         className: 'basemap-tiles',
