@@ -347,12 +347,19 @@ function App() {
       routePane.style.zIndex = '420'
     }
 
-    baseTileLayerRef.current = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; OpenStreetMap contributors',
-      maxZoom: 19,
-      pane: 'base-tiles',
-      className: 'basemap-tiles',
-    }).addTo(map)
+    baseTileLayerRef.current = L.tileLayer(
+      'https://tiles.stadiamaps.com/tiles/stamen_toner_background/{z}/{x}/{y}{r}.png',
+      {
+        attribution:
+          '&copy; <a href="https://stadiamaps.com/" target="_blank" rel="noreferrer">Stadia Maps</a> ' +
+          '&copy; <a href="https://stamen.com/" target="_blank" rel="noreferrer">Stamen Design</a> ' +
+          '&copy; <a href="https://openmaptiles.org/" target="_blank" rel="noreferrer">OpenMapTiles</a> ' +
+          '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">OpenStreetMap</a>',
+        maxZoom: 20,
+        pane: 'base-tiles',
+        className: 'basemap-tiles',
+      },
+    ).addTo(map)
 
     mapRef.current = map
 
