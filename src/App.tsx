@@ -474,11 +474,7 @@ function App() {
         0.88: '#fb923c',
         1: '#ef4444',
       },
-    })
-
-    if (showHeatMap) {
-      heatLayerRef.current.addTo(map)
-    }
+    }).addTo(map)
 
     geoJsonLayerRef.current = L.geoJSON(dataset.geojson, {
       pane: 'routes',
@@ -512,7 +508,7 @@ function App() {
     if (bounds.isValid()) {
       map.fitBounds(bounds.pad(0.14))
     }
-  }, [dataset, showHeatMap])
+  }, [dataset])
 
   useEffect(() => {
     const map = mapRef.current
