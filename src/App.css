@@ -309,9 +309,8 @@
 
 .leaflet-top,
 .leaflet-bottom,
-.leaflet-pane,
 .leaflet-control-container {
-  z-index: 1;
+  z-index: 500;
 }
 
 .map-canvas .basemap-tiles {
