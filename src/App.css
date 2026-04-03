@@ -204,6 +204,7 @@
 .map-panel {
   display: flex;
   position: relative;
+  z-index: 1;
 }
 
 .mobile-panel-backdrop {
@@ -282,6 +283,13 @@
 
 .leaflet-control-zoom a {
   border-radius: 0 !important;
+}
+
+.leaflet-top,
+.leaflet-bottom,
+.leaflet-pane,
+.leaflet-control-container {
+  z-index: 1;
 }
 
 .map-canvas .basemap-tiles {
@@ -486,7 +494,7 @@
   position: absolute;
   top: 12px;
   right: 12px;
-  z-index: 25;
+  z-index: 1200;
 }
 
 .stats-grid {
@@ -597,9 +605,11 @@
     border-top: 1px solid rgba(255, 255, 255, 0.12);
     transform: translateY(0);
     transition: transform 240ms ease;
-    z-index: 40;
+    z-index: 1300;
     box-shadow: 0 -18px 40px rgba(0, 0, 0, 0.38);
     overflow: auto;
+    border-top-left-radius: 22px;
+    border-top-right-radius: 22px;
   }
 
   .side-panel.hidden {
@@ -641,7 +651,7 @@
     opacity: 0;
     pointer-events: none;
     transition: opacity 220ms ease;
-    z-index: 30;
+    z-index: 1250;
   }
 
   .mobile-panel-backdrop.active {
