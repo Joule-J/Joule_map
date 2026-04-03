@@ -321,7 +321,7 @@
 .map-canvas[data-theme='dark'] {
   background:
     radial-gradient(circle at top left, rgba(255, 255, 255, 0.025), transparent 22%),
-    linear-gradient(180deg, rgba(12, 12, 13, 0.985), rgba(4, 4, 5, 1));
+    linear-gradient(180deg, rgba(30, 30, 32, 0.985), rgba(20, 20, 22, 1));
 }
 
 .map-canvas[data-theme='dark']::after {
