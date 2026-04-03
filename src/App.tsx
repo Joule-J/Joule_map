@@ -722,13 +722,14 @@ function App() {
             <input
               ref={fileInputRef}
               type="file"
-              accept=".kml,application/vnd.google-earth.kml+xml"
+              accept=".kml,.xml,text/xml,application/xml,text/plain,application/octet-stream"
               multiple
               onChange={handleFileChange}
             />
             <span className="upload-title">
               {isBusy ? 'Processing...' : 'Upload KML'}
             </span>
+            <span className="upload-subtitle">Mobile picker supports KML and XML files</span>
           </div>
 
           <button
