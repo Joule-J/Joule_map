@@ -37,6 +37,10 @@ const ROUTE_LINE_WEIGHT = 4
 const ROUTE_POINT_RADIUS = 3
 const ROUTE_POINT_STROKE = 2
 const HEAT_SAMPLE_STEP = 0.0025
+const THEME_ROUTE_ACCENTS: Record<BaseMapTheme, string> = {
+  light: '#cfcfcf',
+  dark: '#5e5e61',
+}
 
 function isFiniteNumber(value: unknown): value is number {
   return typeof value === 'number' && Number.isFinite(value)
@@ -327,7 +331,8 @@ function App() {
   const [isBusy, setIsBusy] = useState(false)
   const [isExportingPng, setIsExportingPng] = useState(false)
   const [baseMapTheme, setBaseMapTheme] = useState<BaseMapTheme>('dark')
-  const [routeAccent, setRouteAccent] = useState('#38bdf8')
+  const [routeAccent, setRouteAccent] = useState(THEME_ROUTE_ACCENTS.dark)
+  const [hasCustomRouteAccent, setHasCustomRouteAccent] = useState(false)
   const [showIntro, setShowIntro] = useState(true)
   const [isAuthorized, setIsAuthorized] = useState(false)
   const [isPanelOpen, setIsPanelOpen] = useState(true)
@@ -413,6 +418,12 @@ function App() {
 
     mapElementRef.current.dataset.theme = baseMapTheme
   }, [baseMapTheme])
+
+  useEffect(() => {
+    if (!hasCustomRouteAccent) {
+      setRouteAccent(THEME_ROUTE_ACCENTS[baseMapTheme])
+    }
+  }, [baseMapTheme, hasCustomRouteAccent])
 
   useEffect(() => {
     if (!isPanelOpen) {
@@ -713,7 +724,10 @@ function App() {
                   type="button"
                   className={routeAccent === color ? 'swatch-button active' : 'swatch-button'}
                   style={{ backgroundColor: color }}
-                  onClick={() => setRouteAccent(color)}
+                  onClick={() => {
+                    setHasCustomRouteAccent(true)
+                    setRouteAccent(color)
+                  }}
                   aria-label={`Set route color ${color}`}
                 />
               ))}
@@ -721,7 +735,10 @@ function App() {
                 <input
                   type="color"
                   value={routeAccent}
-                  onChange={(event) => setRouteAccent(event.target.value)}
+                  onChange={(event) => {
+                    setHasCustomRouteAccent(true)
+                    setRouteAccent(event.target.value)
+                  }}
                 />
               </label>
             </div>
