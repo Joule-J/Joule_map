@@ -353,7 +353,10 @@ function App() {
       center: DEFAULT_CENTER,
       zoom: DEFAULT_ZOOM,
       zoomControl: false,
+      attributionControl: true,
     })
+
+    map.attributionControl.setPrefix('')
 
     L.control
       .zoom({
@@ -385,7 +388,7 @@ function App() {
       {
         attribution:
           '&copy; <a href="https://stadiamaps.com/" target="_blank" rel="noreferrer">Stadia Maps</a> ' +
-          '&copy; <a href="https://stamen.com/" target="_blank" rel="noreferrer">Stamen Design</a> ' +
+          '&copy; <a href="https://stamen.com/" target="_blank" rel="noreferrer">Stamen</a> ' +
           '&copy; <a href="https://openmaptiles.org/" target="_blank" rel="noreferrer">OpenMapTiles</a> ' +
           '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">OpenStreetMap</a>',
         maxZoom: 20,

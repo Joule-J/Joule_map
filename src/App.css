@@ -287,6 +287,26 @@
   border-radius: 0 !important;
 }
 
+.leaflet-control-attribution {
+  margin: 0 10px 10px 0 !important;
+  padding: 4px 8px !important;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(10, 10, 11, 0.72) !important;
+  color: rgba(255, 255, 255, 0.72) !important;
+  font-size: 10px !important;
+  line-height: 1.3;
+  backdrop-filter: blur(8px);
+}
+
+.leaflet-control-attribution a {
+  color: rgba(255, 255, 255, 0.86) !important;
+  text-decoration: none;
+}
+
+.leaflet-control-attribution a:hover {
+  text-decoration: underline;
+}
+
 .leaflet-top,
 .leaflet-bottom,
 .leaflet-pane,
