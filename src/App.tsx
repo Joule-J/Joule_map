@@ -37,6 +37,10 @@ const ROUTE_LINE_WEIGHT = 4
 const ROUTE_POINT_RADIUS = 3
 const ROUTE_POINT_STROKE = 2
 const HEAT_SAMPLE_STEP = 0.0025
+const BASEMAP_TILE_URLS: Record<BaseMapTheme, string> = {
+  light: 'https://tiles.stadiamaps.com/tiles/alidade_smooth/{z}/{x}/{y}{r}.png',
+  dark: 'https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png',
+}
 const THEME_ROUTE_ACCENTS: Record<BaseMapTheme, string> = {
   light: '#cfcfcf',
   dark: '#5e5e61',
@@ -389,11 +393,10 @@ function App() {
     }
 
     baseTileLayerRef.current = L.tileLayer(
-      'https://tiles.stadiamaps.com/tiles/stamen_toner_background/{z}/{x}/{y}{r}.png',
+      BASEMAP_TILE_URLS.dark,
       {
         attribution:
           '&copy; <a href="https://stadiamaps.com/" target="_blank" rel="noreferrer">Stadia Maps</a> ' +
-          '&copy; <a href="https://stamen.com/" target="_blank" rel="noreferrer">Stamen</a> ' +
           '&copy; <a href="https://openmaptiles.org/" target="_blank" rel="noreferrer">OpenMapTiles</a> ' +
           '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">OpenStreetMap</a>',
         maxZoom: 20,
@@ -417,6 +420,10 @@ function App() {
     }
 
     mapElementRef.current.dataset.theme = baseMapTheme
+  }, [baseMapTheme])
+
+  useEffect(() => {
+    baseTileLayerRef.current?.setUrl(BASEMAP_TILE_URLS[baseMapTheme])
   }, [baseMapTheme])
 
   useEffect(() => {
